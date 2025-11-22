@@ -1,0 +1,50 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: stockmaster-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 5360
+      MYSQL_DATABASE: inventory_manage
+    ports:
+      - "3307:3306"  # Using 3307 on host to avoid conflict with local MySQL
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - stockmaster-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p5360"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stockmaster-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/inventory_manage?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 5360
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: palhariom698@gmail.com
+      SPRING_MAIL_PASSWORD: bxwyshlqcykdrcxq
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - stockmaster-network
+    restart: unless-stopped
+
+networks:
+  stockmaster-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+

@@ -43,9 +43,9 @@ public class UserController {
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
         try {
             userService.generateOtp(email);
-            return ResponseEntity.ok("OTP sent to email");
+            return ResponseEntity.ok(java.util.Map.of("message", "OTP sent to email"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         }
     }
 
@@ -53,9 +53,9 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         try {
             userService.resetPassword(token, newPassword);
-            return ResponseEntity.ok("Password reset successfully");
+            return ResponseEntity.ok(java.util.Map.of("message", "Password reset successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         }
     }
 }

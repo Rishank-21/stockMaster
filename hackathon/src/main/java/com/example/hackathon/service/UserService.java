@@ -45,6 +45,9 @@ public class UserService {
     public void generateOtp(String email) {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         
+        // Delete any existing tokens for this user
+        tokenRepo.deleteByUser(user);
+        
         // Generate 6-digit OTP
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
         
