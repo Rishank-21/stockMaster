@@ -10,5 +10,7 @@ public class StockMovementDTO {
     private Long supplierId;
     private Integer quantity;
     private String type; // RECEIPT, DELIVERY, TRANSFER, ADJUSTMENT
-    private String status; // PENDING, DONE
+    private String status; // PENDING, DONE, DRAFT, WAITING, READY, CANCELED
+    private String customerName; // For deliveries
+    private String shippingAddress; // For deliveries
 }

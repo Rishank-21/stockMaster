@@ -14,4 +14,5 @@ public class Warehouse {
 
     private String name; // e.g., "Main Warehouse", "Production Floor"
     private String location;
+    private Integer capacity; // Optional warehouse capacity
 }

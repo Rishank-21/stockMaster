@@ -29,6 +29,10 @@
         <a href="/history.html" class="md-nav-item"><span class="material-icons">history</span><span>History</span></a>
         <a href="/suppliers.html" class="md-nav-item"><span
                 class="material-icons">store</span><span>Suppliers</span></a>
+        <a href="/warehouses.html" class="md-nav-item"><span
+                class="material-icons">warehouse</span><span>Warehouses</span></a>
+        <a href="/profile.html" class="md-nav-item"><span
+                class="material-icons">person</span><span>My Profile</span></a>
         <div style="margin-top: auto; padding: 24px;"><button onclick="logout()"
                 class="md-button md-button-outlined full-width"><span
                     class="material-icons">logout</span>Logout</button></div>
@@ -52,11 +56,19 @@
                         <div class="md-text-field"><select id="supplierId">
                                 <option value="">Select Supplier (Optional)</option>
                             </select><label>Supplier</label></div>
+                        <div id="stockInfo" style="display: none; padding: 12px; margin: 8px 0; background: var(--md-sys-color-surface-variant); border-radius: 8px;">
+                            <div class="body-small" style="color: var(--md-sys-color-on-surface-variant);">Current Stock</div>
+                            <div class="title-large" id="availableStock" style="color: var(--md-sys-color-primary); font-weight: 700;">-</div>
+                        </div>
                         <div class="md-text-field"><input type="number" id="quantity" placeholder=" " min="1"
                                 required><label>Quantity</label></div>
                         <div class="md-text-field"><select id="status" required>
-                                <option value="DONE">DONE (Immediate)</option>
-                                <option value="PENDING">PENDING (Draft)</option>
+                                <option value="DONE">DONE (Completed)</option>
+                                <option value="READY">READY (Ready to Process)</option>
+                                <option value="WAITING">WAITING (Awaiting Action)</option>
+                                <option value="DRAFT">DRAFT (In Progress)</option>
+                                <option value="PENDING">PENDING (Review)</option>
+                                <option value="CANCELED">CANCELED</option>
                             </select><label>Status</label></div>
                     </div>
                     <button type="submit" class="md-button md-button-filled"><span
@@ -76,11 +88,12 @@
                                 <th>Supplier</th>
                                 <th>Quantity</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="receiptsTable">
                             <tr>
-                                <td colspan="6" class="text-center">Loading...</td>
+                                <td colspan="7" class="text-center">Loading...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -96,6 +109,30 @@
             <div class="md-dialog-content" id="receiptDetailContent"></div>
             <div class="md-dialog-actions">
                 <button class="md-button md-button-filled" onclick="closeReceiptDetail()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Status Dialog -->
+    <div id="updateStatusDialog" class="md-dialog-overlay">
+        <div class="md-dialog">
+            <h2 class="md-dialog-title">Update Receipt Status</h2>
+            <div class="md-dialog-content">
+                <input type="hidden" id="updateReceiptId">
+                <div class="md-text-field">
+                    <select id="newStatus" title="New Status" required>
+                        <option value="DRAFT">DRAFT (In Progress)</option>
+                        <option value="WAITING">WAITING (Awaiting Action)</option>
+                        <option value="READY">READY (Ready to Process)</option>
+                        <option value="DONE">DONE (Completed & Validated)</option>
+                        <option value="CANCELED">CANCELED</option>
+                    </select>
+                    <label>New Status</label>
+                </div>
+            </div>
+            <div class="md-dialog-actions">
+                <button class="md-button md-button-text" onclick="closeUpdateStatus()">Cancel</button>
+                <button class="md-button md-button-filled" onclick="saveStatusUpdate()">Update Status</button>
             </div>
         </div>
     </div>
@@ -142,20 +179,63 @@
                 const tbody = document.getElementById('receiptsTable');
 
                 if (receipts.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No receipts yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No receipts yet</td></tr>';
                 } else {
                     tbody.innerHTML = receipts.map(r => {
                         const date = new Date(r.timestamp).toLocaleString();
                         const supplier = r.supplier ? r.supplier.name : '-';
                         const statusColor = r.status === 'PENDING' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-success)';
-                        return `<tr onclick="showReceiptDetail(${r.id})" style="cursor: pointer;">
+                        const statusButtons = getStatusActions(r);
+                        return `<tr>
                             <td>${date}</td><td>${r.product.name}</td><td>${r.toWarehouse.name}</td><td>${supplier}</td><td>${r.quantity}</td>
                             <td style="color: ${statusColor}; font-weight: 500;">${r.status}</td>
+                            <td>
+                                <button class="md-button md-button-icon" onclick="event.stopPropagation(); showReceiptDetail(${r.id})" title="View Details">
+                                    <span class="material-icons">visibility</span>
+                                </button>
+                                ${statusButtons}
+                            </td>
                         </tr>`;
                     }).join('');
                 }
             } catch (error) {
                 console.error('Failed to load receipts:', error);
+            }
+        }
+
+        function getStatusActions(item) {
+            // Only show status update button for active statuses (not DONE or CANCELED)
+            if (item.status === 'DONE' || item.status === 'CANCELED') {
+                return '';
+            }
+            
+            return `<button class="md-button md-button-icon" onclick="event.stopPropagation(); openUpdateStatus(${item.id}, '${item.status}')" title="Update Status">
+                        <span class="material-icons">edit</span>
+                    </button>`;
+        }
+
+        function openUpdateStatus(id, currentStatus) {
+            document.getElementById('updateReceiptId').value = id;
+            const select = document.getElementById('newStatus');
+            select.value = currentStatus;
+            document.getElementById('updateStatusDialog').classList.add('show');
+        }
+
+        function closeUpdateStatus() {
+            document.getElementById('updateStatusDialog').classList.remove('show');
+        }
+
+        async function saveStatusUpdate() {
+            const id = document.getElementById('updateReceiptId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            
+            try {
+                await api.updateMovementStatus(id, newStatus);
+                showToast('Status updated successfully!', 'success');
+                closeUpdateStatus();
+                loadReceipts();
+            } catch (error) {
+                showToast('Failed to update status: ' + error.message, 'error');
             }
         }
 
@@ -167,6 +247,37 @@
                 document.getElementById('supplierId').innerHTML = '<option value="">Select Supplier (Optional)</option>' + suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
             } catch (error) {
                 showToast('Failed to load data: ' + error.message, 'error');
+            }
+        }
+
+        // Add event listeners for stock checking
+        document.getElementById('productId').addEventListener('change', checkCurrentStock);
+        document.getElementById('warehouseId').addEventListener('change', checkCurrentStock);
+
+        async function checkCurrentStock() {
+            const productId = document.getElementById('productId').value;
+            const warehouseId = document.getElementById('warehouseId').value;
+            
+            if (productId && warehouseId) {
+                try {
+                    const inventory = await api.getStockByLocation(productId, warehouseId);
+                    const stockItem = inventory.find(item => 
+                        item.product.id == productId && item.warehouse.id == warehouseId
+                    );
+                    
+                    if (stockItem) {
+                        document.getElementById('availableStock').textContent = stockItem.quantity + ' ' + stockItem.product.unitOfMeasure;
+                        document.getElementById('stockInfo').style.display = 'block';
+                    } else {
+                        document.getElementById('availableStock').textContent = '0 (New stock location)';
+                        document.getElementById('stockInfo').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Failed to check stock:', error);
+                    document.getElementById('stockInfo').style.display = 'none';
+                }
+            } else {
+                document.getElementById('stockInfo').style.display = 'none';
             }
         }
 

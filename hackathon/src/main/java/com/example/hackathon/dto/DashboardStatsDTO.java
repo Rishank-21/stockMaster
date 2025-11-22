@@ -8,4 +8,5 @@ public class DashboardStatsDTO {
     private long lowStockItems;
     private long pendingReceipts;
     private long pendingDeliveries;
+    private long transfersScheduled;
 }

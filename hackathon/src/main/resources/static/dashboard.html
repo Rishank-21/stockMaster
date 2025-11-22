@@ -47,6 +47,14 @@
             <span class="material-icons">store</span>
             <span>Suppliers</span>
         </a>
+        <a href="/warehouses.html" class="md-nav-item">
+            <span class="material-icons">warehouse</span>
+            <span>Warehouses</span>
+        </a>
+        <a href="/profile.html" class="md-nav-item">
+            <span class="material-icons">person</span>
+            <span>My Profile</span>
+        </a>
         <div style="margin-top: auto; padding: 24px;">
             <button onclick="logout()" class="md-button md-button-outlined full-width">
                 <span class="material-icons">logout</span>
@@ -63,8 +71,51 @@
         </div>
 
         <div class="content-container">
+            <!-- Filters -->
+            <div class="md-card mb-24">
+                <h3 class="title-medium mb-16">Dashboard Filters</h3>
+                <div class="md-grid md-grid-3">
+                    <div class="md-text-field">
+                        <select id="filterType">
+                            <option value="">All Types</option>
+                            <option value="RECEIPT">Receipts</option>
+                            <option value="DELIVERY">Deliveries</option>
+                            <option value="TRANSFER">Internal Transfers</option>
+                            <option value="ADJUSTMENT">Adjustments</option>
+                        </select>
+                        <label>Document Type</label>
+                    </div>
+                    <div class="md-text-field">
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="DRAFT">Draft</option>
+                            <option value="WAITING">Waiting</option>
+                            <option value="READY">Ready</option>
+                            <option value="DONE">Done</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="CANCELED">Canceled</option>
+                        </select>
+                        <label>Status</label>
+                    </div>
+                    <div class="md-text-field">
+                        <select id="filterWarehouse">
+                            <option value="">All Warehouses</option>
+                        </select>
+                        <label>Warehouse</label>
+                    </div>
+                </div>
+                <button class="md-button md-button-filled" onclick="applyDashboardFilters()">
+                    <span class="material-icons">filter_list</span>
+                    Apply Filters
+                </button>
+                <button class="md-button md-button-outlined" onclick="clearDashboardFilters()">
+                    <span class="material-icons">clear</span>
+                    Clear
+                </button>
+            </div>
+
             <!-- KPI Cards -->
-            <div class="md-grid md-grid-3 mb-24">
+            <div class="md-grid md-grid-5 mb-24">
                 <div class="md-card">
                     <div class="md-card-header">
                         <div class="title-medium">Total Products</div>
@@ -85,6 +136,20 @@
                     </div>
                     <div style="font-size: 48px; font-weight: 700; color: var(--md-sys-color-tertiary);"
                         id="pendingReceipts">0</div>
+                </div>
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <div class="title-medium">Pending Deliveries</div>
+                    </div>
+                    <div style="font-size: 48px; font-weight: 700; color: var(--md-sys-color-secondary);"
+                        id="pendingDeliveries">0</div>
+                </div>
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <div class="title-medium">Transfers Scheduled</div>
+                    </div>
+                    <div style="font-size: 48px; font-weight: 700; color: #9C27B0;"
+                        id="transfersScheduled">0</div>
                 </div>
             </div>
 
@@ -127,7 +192,18 @@
         const username = localStorage.getItem('username');
         document.getElementById('userDisplay').textContent = username || 'User';
 
-        async function loadDashboard() {
+        async function loadWarehouses() {
+            try {
+                const warehouses = await api.getWarehouses();
+                const select = document.getElementById('filterWarehouse');
+                select.innerHTML = '<option value="">All Warehouses</option>' +
+                    warehouses.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            } catch (error) {
+                console.error('Failed to load warehouses:', error);
+            }
+        }
+
+        async function loadDashboard(filters = {}) {
             try {
                 showLoading();
 
@@ -136,6 +212,8 @@
                 document.getElementById('totalProducts').textContent = stats.totalProducts || 0;
                 document.getElementById('lowStock').textContent = stats.lowStockItems || 0;
                 document.getElementById('pendingReceipts').textContent = stats.pendingReceipts || 0;
+                document.getElementById('pendingDeliveries').textContent = stats.pendingDeliveries || 0;
+                document.getElementById('transfersScheduled').textContent = stats.transfersScheduled || 0;
 
                 // Load low stock items
                 const lowStockItems = await api.getLowStockItems();
@@ -166,6 +244,25 @@
             }
         }
 
+        function applyDashboardFilters() {
+            const filters = {
+                type: document.getElementById('filterType').value || undefined,
+                status: document.getElementById('filterStatus').value || undefined,
+                warehouseId: document.getElementById('filterWarehouse').value || undefined
+            };
+            loadDashboard(filters);
+            showToast('Filters applied', 'success');
+        }
+
+        function clearDashboardFilters() {
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterWarehouse').value = '';
+            loadDashboard();
+            showToast('Filters cleared', 'success');
+        }
+
+        loadWarehouses();
         loadDashboard();
     </script>
 </body>

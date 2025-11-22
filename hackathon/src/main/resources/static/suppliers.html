@@ -29,6 +29,10 @@
         <a href="/history.html" class="md-nav-item"><span class="material-icons">history</span><span>History</span></a>
         <a href="/suppliers.html" class="md-nav-item active"><span
                 class="material-icons">store</span><span>Suppliers</span></a>
+        <a href="/warehouses.html" class="md-nav-item"><span
+                class="material-icons">warehouse</span><span>Warehouses</span></a>
+        <a href="/profile.html" class="md-nav-item"><span
+                class="material-icons">person</span><span>My Profile</span></a>
         <div style="margin-top: auto; padding: 24px;"><button onclick="logout()"
                 class="md-button md-button-outlined full-width"><span
                     class="material-icons">logout</span>Logout</button></div>
@@ -48,11 +52,12 @@
                                 <th>Contact</th>
                                 <th>Email</th>
                                 <th>Address</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="suppliersTable">
                             <tr>
-                                <td colspan="4" class="text-center">Loading...</td>
+                                <td colspan="5" class="text-center">Loading...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -65,9 +70,10 @@
 
     <div id="supplierDialog" class="md-dialog-overlay">
         <div class="md-dialog">
-            <h2 class="md-dialog-title">Add Supplier</h2>
+            <h2 class="md-dialog-title" id="dialogTitle">Add Supplier</h2>
             <div class="md-dialog-content">
                 <form id="supplierForm">
+                    <input type="hidden" id="supplierId">
                     <div class="md-text-field"><input type="text" id="name" placeholder=" " required><label>Name</label>
                     </div>
                     <div class="md-text-field"><input type="text" id="contactInfo" placeholder=" "
@@ -99,8 +105,21 @@
                 showLoading();
                 const suppliers = await api.getSuppliers();
                 const tbody = document.getElementById('suppliersTable');
-                tbody.innerHTML = suppliers.length === 0 ? '<tr><td colspan="4" class="text-center">No suppliers</td></tr>' :
-                    suppliers.map(s => `<tr><td>${s.name}</td><td>${s.contactInfo}</td><td>${s.email}</td><td>${s.address}</td></tr>`).join('');
+                tbody.innerHTML = suppliers.length === 0 ? '<tr><td colspan="5" class="text-center">No suppliers</td></tr>' :
+                    suppliers.map(s => `<tr>
+                        <td>${s.name}</td>
+                        <td>${s.contactInfo}</td>
+                        <td>${s.email}</td>
+                        <td>${s.address}</td>
+                        <td>
+                            <button class="md-button md-button-icon" onclick="editSupplier(${s.id})" title="Edit">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="md-button md-button-icon" onclick="deleteSupplier(${s.id}, '${s.name}')" title="Delete">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </td>
+                    </tr>`).join('');
             } catch (error) {
                 showToast('Failed to load suppliers: ' + error.message, 'error');
             } finally {
@@ -108,13 +127,58 @@
             }
         }
 
-        function openSupplierDialog() { document.getElementById('supplierDialog').classList.add('show'); }
+        function openSupplierDialog() {
+            document.getElementById('dialogTitle').textContent = 'Add Supplier';
+            document.getElementById('supplierId').value = '';
+            document.getElementById('supplierDialog').classList.add('show');
+        }
+
         function closeSupplierDialog() {
             document.getElementById('supplierDialog').classList.remove('show');
             document.getElementById('supplierForm').reset();
         }
 
+        async function editSupplier(id) {
+            try {
+                showLoading();
+                const suppliers = await api.getSuppliers();
+                const supplier = suppliers.find(s => s.id === id);
+                if (!supplier) {
+                    showToast('Supplier not found', 'error');
+                    return;
+                }
+
+                document.getElementById('dialogTitle').textContent = 'Edit Supplier';
+                document.getElementById('supplierId').value = supplier.id;
+                document.getElementById('name').value = supplier.name;
+                document.getElementById('contactInfo').value = supplier.contactInfo;
+                document.getElementById('email').value = supplier.email;
+                document.getElementById('address').value = supplier.address;
+                document.getElementById('supplierDialog').classList.add('show');
+            } catch (error) {
+                showToast('Failed to load supplier: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function deleteSupplier(id, name) {
+            if (!confirm(`Are you sure you want to delete supplier "${name}"?`)) return;
+
+            try {
+                showLoading();
+                await api.deleteSupplier(id);
+                showToast('Supplier deleted successfully!', 'success');
+                loadSuppliers();
+            } catch (error) {
+                showToast('Failed to delete supplier: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
         async function saveSupplier() {
+            const supplierId = document.getElementById('supplierId').value;
             const supplier = {
                 name: document.getElementById('name').value,
                 contactInfo: document.getElementById('contactInfo').value,
@@ -124,12 +188,17 @@
 
             try {
                 showLoading();
-                await api.createSupplier(supplier);
-                showToast('Supplier created!', 'success');
+                if (supplierId) {
+                    await api.updateSupplier(supplierId, supplier);
+                    showToast('Supplier updated!', 'success');
+                } else {
+                    await api.createSupplier(supplier);
+                    showToast('Supplier created!', 'success');
+                }
                 closeSupplierDialog();
                 loadSuppliers();
             } catch (error) {
-                showToast('Failed to create supplier: ' + error.message, 'error');
+                showToast('Failed to save supplier: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }

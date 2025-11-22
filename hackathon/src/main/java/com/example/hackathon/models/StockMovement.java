@@ -16,22 +16,30 @@ public class StockMovement {
     private String type;
 
     @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @ManyToOne
+    @JoinColumn(name = "supplier_id")
     private Supplier supplier; // Nullable, for Receipts
 
 
     @ManyToOne
+    @JoinColumn(name = "from_warehouse_id")
     private Warehouse fromWarehouse; // Null for Receipts
 
     @ManyToOne
+    @JoinColumn(name = "to_warehouse_id")
     private Warehouse toWarehouse;   // Null for Deliveries
 
     private Integer quantity;
 
     private LocalDateTime timestamp;
-    private String status; // "DONE", "PENDING"
+    private String status; // "DONE", "PENDING", "DRAFT", "WAITING", "READY", "CANCELED"
+    
+    // For deliveries
+    private String customerName;
+    private String shippingAddress;
 
     @PrePersist
     public void prePersist() {

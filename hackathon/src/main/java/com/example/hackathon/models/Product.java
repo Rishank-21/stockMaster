@@ -21,6 +21,8 @@ public class Product {
     private Double price;
 
     private Integer minStockLevel; // For low stock alerts
+    private Integer reorderPoint; // Automatic reorder threshold
+    private Integer reorderQuantity; // Quantity to reorder when threshold is reached
 
     @Transient
     private Integer initialStock; // Used only during creation

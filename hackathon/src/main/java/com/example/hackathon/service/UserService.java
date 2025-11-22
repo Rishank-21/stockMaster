@@ -77,5 +77,41 @@ public class UserService {
         // Invalidate token (optional: delete it)
         tokenRepo.delete(resetToken);
     }
+
+    public User getUserByUsername(String username) {
+        return userRepo.findByUsername(username).orElse(null);
+    }
+
+    public User updateProfile(String username, User updatedUser) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Update allowed fields
+        if (updatedUser.getFirstName() != null) {
+            user.setFirstName(updatedUser.getFirstName());
+        }
+        if (updatedUser.getLastName() != null) {
+            user.setLastName(updatedUser.getLastName());
+        }
+        if (updatedUser.getEmail() != null) {
+            user.setEmail(updatedUser.getEmail());
+        }
+        
+        return userRepo.save(user);
+    }
+
+    public void changePassword(String username, String currentPassword, String newPassword) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Verify current password
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+        
+        // Update password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
+    }
 }
 

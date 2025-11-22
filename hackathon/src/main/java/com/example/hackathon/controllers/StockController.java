@@ -31,7 +31,8 @@ public class StockController {
     // Deliver Goods (Warehouse -> Customer)
     @PostMapping("/delivery")
     public StockMovement addDelivery(@RequestBody com.example.hackathon.dto.StockMovementDTO dto) {
-        return stockService.createDelivery(dto.getProductId(), dto.getFromWarehouseId(), dto.getQuantity(), dto.getStatus());
+        return stockService.createDelivery(dto.getProductId(), dto.getFromWarehouseId(), dto.getQuantity(), 
+                dto.getStatus(), dto.getCustomerName(), dto.getShippingAddress());
     }
 
     // Internal Transfer (Warehouse A -> Warehouse B)
@@ -66,6 +67,24 @@ public class StockController {
     @PostMapping("/validate/{id}")
     public StockMovement validateMovement(@PathVariable Long id) {
         return stockService.validateMovement(id);
+    }
+
+    // Update Movement Status
+    @PutMapping("/movement/{id}/status")
+    public StockMovement updateMovementStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        String status = body.get("status");
+        return stockService.updateMovementStatus(id, status);
+    }
+
+    // Delete Movement (History)
+    @DeleteMapping("/movement/{id}")
+    public org.springframework.http.ResponseEntity<?> deleteMovement(@PathVariable Long id) {
+        try {
+            stockService.deleteMovement(id);
+            return org.springframework.http.ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.status(400).body("Cannot delete movement: " + e.getMessage());
+        }
     }
 
     // Get Low Stock Items

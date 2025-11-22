@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - StockMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Text:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/material.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+    <nav class="md-navigation-drawer">
+        <a href="/dashboard.html" class="md-nav-item"><span
+                class="material-icons">dashboard</span><span>Dashboard</span></a>
+        <a href="/products.html" class="md-nav-item"><span
+                class="material-icons">inventory_2</span><span>Products</span></a>
+        <a href="/receipts.html" class="md-nav-item"><span
+                class="material-icons">local_shipping</span><span>Receipts</span></a>
+        <a href="/deliveries.html" class="md-nav-item"><span
+                class="material-icons">send</span><span>Deliveries</span></a>
+        <a href="/transfers.html" class="md-nav-item"><span
+                class="material-icons">swap_horiz</span><span>Transfers</span></a>
+        <a href="/adjustments.html" class="md-nav-item"><span
+                class="material-icons">tune</span><span>Adjustments</span></a>
+        <a href="/history.html" class="md-nav-item"><span class="material-icons">history</span><span>History</span></a>
+        <a href="/suppliers.html" class="md-nav-item"><span
+                class="material-icons">store</span><span>Suppliers</span></a>
+        <a href="/warehouses.html" class="md-nav-item"><span
+                class="material-icons">warehouse</span><span>Warehouses</span></a>
+        <a href="/profile.html" class="md-nav-item active"><span
+                class="material-icons">person</span><span>My Profile</span></a>
+        <div style="margin-top: auto; padding: 24px;"><button onclick="logout()"
+                class="md-button md-button-outlined full-width"><span
+                    class="material-icons">logout</span>Logout</button></div>
+    </nav>
+
+    <div class="main-content">
+        <div class="md-top-app-bar">
+            <h1 class="md-top-app-bar-title">My Profile</h1>
+        </div>
+
+        <div class="content-container">
+            <div class="md-grid md-grid-2">
+                <!-- Profile Information Card -->
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <h2 class="md-card-title">Profile Information</h2>
+                    </div>
+                    <div id="profileInfo" style="padding: 16px;">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary)); display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 48px; color: white; font-weight: 700;" id="avatarInitials">
+                            </div>
+                        </div>
+                        <div style="display: grid; gap: 16px;">
+                            <div>
+                                <div class="body-small" style="color: var(--md-sys-color-on-surface-variant);">Username</div>
+                                <div class="title-medium" id="displayUsername">-</div>
+                            </div>
+                            <div>
+                                <div class="body-small" style="color: var(--md-sys-color-on-surface-variant);">Email</div>
+                                <div class="title-medium" id="displayEmail">-</div>
+                            </div>
+                            <div>
+                                <div class="body-small" style="color: var(--md-sys-color-on-surface-variant);">Full Name</div>
+                                <div class="title-medium" id="displayFullName">-</div>
+                            </div>
+                            <div>
+                                <div class="body-small" style="color: var(--md-sys-color-on-surface-variant);">Role</div>
+                                <div class="title-medium" id="displayRole">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Card -->
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <h2 class="md-card-title">Security</h2>
+                    </div>
+                    <div style="padding: 16px;">
+                        <p class="body-medium" style="margin-bottom: 16px;">Keep your account secure by regularly updating your password.</p>
+                        <button class="md-button md-button-filled full-width" onclick="openPasswordDialog()">
+                            <span class="material-icons">lock</span>
+                            Change Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Dialog -->
+    <div id="passwordDialog" class="md-dialog-overlay">
+        <div class="md-dialog">
+            <h2 class="md-dialog-title">Change Password</h2>
+            <div class="md-dialog-content">
+                <form id="passwordForm">
+                    <div class="md-text-field">
+                        <input type="password" id="currentPassword" placeholder=" " required>
+                        <label>Current Password</label>
+                    </div>
+                    <div class="md-text-field">
+                        <input type="password" id="newPassword" placeholder=" " required minlength="6">
+                        <label>New Password</label>
+                    </div>
+                    <div class="md-text-field">
+                        <input type="password" id="confirmNewPassword" placeholder=" " required>
+                        <label>Confirm New Password</label>
+                    </div>
+                </form>
+            </div>
+            <div class="md-dialog-actions">
+                <button class="md-button md-button-text" onclick="closePasswordDialog()">Cancel</button>
+                <button class="md-button md-button-filled" onclick="changePassword()">Update Password</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        checkAuth();
+
+        let currentUser = null;
+
+        async function loadProfile() {
+            try {
+                showLoading();
+                currentUser = await api.getUserProfile();
+
+                // Display profile info
+                document.getElementById('displayUsername').textContent = currentUser.username || '-';
+                document.getElementById('displayEmail').textContent = currentUser.email || '-';
+                document.getElementById('displayFullName').textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || '-';
+                document.getElementById('displayRole').textContent = formatRole(currentUser.role || 'USER');
+                
+                // Set avatar initials
+                const firstName = currentUser.firstName || 'U';
+                const lastName = currentUser.lastName || 'N';
+                const initials = (firstName[0] + lastName[0]).toUpperCase();
+                document.getElementById('avatarInitials').textContent = initials;
+            } catch (error) {
+                showToast('Failed to load profile: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function formatRole(role) {
+            return role.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function openPasswordDialog() {
+            document.getElementById('passwordDialog').classList.add('show');
+        }
+
+        function closePasswordDialog() {
+            document.getElementById('passwordDialog').classList.remove('show');
+            document.getElementById('passwordForm').reset();
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmNewPassword) {
+                showToast('New passwords do not match!', 'error');
+                return;
+            }
+
+            try {
+                showLoading();
+                await api.changePassword({ currentPassword, newPassword });
+                showToast('Password changed successfully!', 'success');
+                closePasswordDialog();
+            } catch (error) {
+                showToast('Failed to change password: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        loadProfile();
+    </script>
+</body>
+
+</html>

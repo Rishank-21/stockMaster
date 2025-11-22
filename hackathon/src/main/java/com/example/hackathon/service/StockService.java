@@ -58,7 +58,7 @@ public class StockService {
 
     // 2. DELIVERY (Outgoing Goods)
     @Transactional
-    public StockMovement createDelivery(Long productId, Long warehouseId, Integer quantity, String status) {
+    public StockMovement createDelivery(Long productId, Long warehouseId, Integer quantity, String status, String customerName, String shippingAddress) {
         Product product = productRepo.findById(productId).orElseThrow();
         Warehouse warehouse = warehouseRepo.findById(warehouseId).orElseThrow();
 
@@ -69,6 +69,8 @@ public class StockService {
         move.setFromWarehouse(warehouse);
         move.setQuantity(quantity);
         move.setStatus(status != null ? status : "DONE");
+        move.setCustomerName(customerName);
+        move.setShippingAddress(shippingAddress);
         
         // Only validate and update stock if status is DONE
         if ("DONE".equals(move.getStatus())) {
@@ -179,6 +181,13 @@ public class StockService {
                 .count();
         stats.setPendingDeliveries(pendingDeliveries);
 
+        // Transfers scheduled (PENDING or WAITING status)
+        long transfersScheduled = movementRepo.findAll().stream()
+                .filter(m -> "TRANSFER".equals(m.getType()) && 
+                        ("PENDING".equals(m.getStatus()) || "WAITING".equals(m.getStatus()) || "READY".equals(m.getStatus())))
+                .count();
+        stats.setTransfersScheduled(transfersScheduled);
+
         return stats;
     }
 
@@ -242,5 +251,90 @@ public class StockService {
                     return minLevel != null && inv.getQuantity() < minLevel;
                 })
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    // Update movement status (for workflow progression)
+    @Transactional
+    public StockMovement updateMovementStatus(Long movementId, String newStatus) {
+        StockMovement move = movementRepo.findById(movementId)
+                .orElseThrow(() -> new RuntimeException("Movement not found"));
+
+        // Don't allow changing status if already DONE or CANCELED
+        if ("DONE".equals(move.getStatus()) || "CANCELED".equals(move.getStatus())) {
+            throw new RuntimeException("Cannot change status of completed or canceled movement");
+        }
+
+        String oldStatus = move.getStatus();
+        move.setStatus(newStatus);
+
+        // If changing to DONE, apply stock changes
+        if ("DONE".equals(newStatus)) {
+            switch (move.getType()) {
+                case "RECEIPT":
+                    // Only update stock if not already done
+                    if (!"DONE".equals(oldStatus)) {
+                        updateStock(move.getProduct(), move.getToWarehouse(), move.getQuantity());
+                    }
+                    break;
+                case "DELIVERY":
+                    // Only update stock if not already done
+                    if (!"DONE".equals(oldStatus)) {
+                        StockInventory inv = stockRepo.findByProductAndWarehouse(move.getProduct(), move.getFromWarehouse())
+                                .orElseThrow(() -> new RuntimeException("No stock found"));
+                        if (inv.getQuantity() < move.getQuantity()) {
+                            throw new RuntimeException("Insufficient stock");
+                        }
+                        updateStock(move.getProduct(), move.getFromWarehouse(), -move.getQuantity());
+                    }
+                    break;
+                case "TRANSFER":
+                    // Only update stock if not already done
+                    if (!"DONE".equals(oldStatus)) {
+                        StockInventory sourceInv = stockRepo.findByProductAndWarehouse(move.getProduct(), move.getFromWarehouse())
+                                .orElseThrow(() -> new RuntimeException("No stock in source"));
+                        if (sourceInv.getQuantity() < move.getQuantity()) {
+                            throw new RuntimeException("Insufficient stock");
+                        }
+                        updateStock(move.getProduct(), move.getFromWarehouse(), -move.getQuantity());
+                        updateStock(move.getProduct(), move.getToWarehouse(), move.getQuantity());
+                    }
+                    break;
+            }
+        }
+
+        return movementRepo.save(move);
+    }
+
+    // Delete movement (history record)
+    @Transactional
+    public void deleteMovement(Long movementId) {
+        StockMovement move = movementRepo.findById(movementId)
+                .orElseThrow(() -> new RuntimeException("Movement not found"));
+
+        // If the movement was DONE, we need to reverse the stock changes
+        if ("DONE".equals(move.getStatus())) {
+            switch (move.getType()) {
+                case "RECEIPT":
+                    // Reverse: subtract the quantity that was added
+                    updateStock(move.getProduct(), move.getToWarehouse(), -move.getQuantity());
+                    break;
+                case "DELIVERY":
+                    // Reverse: add back the quantity that was deducted
+                    updateStock(move.getProduct(), move.getFromWarehouse(), move.getQuantity());
+                    break;
+                case "TRANSFER":
+                    // Reverse: add back to source, subtract from destination
+                    updateStock(move.getProduct(), move.getFromWarehouse(), move.getQuantity());
+                    updateStock(move.getProduct(), move.getToWarehouse(), -move.getQuantity());
+                    break;
+                case "ADJUSTMENT":
+                    // Reverse the adjustment
+                    updateStock(move.getProduct(), move.getToWarehouse(), -move.getQuantity());
+                    break;
+            }
+        }
+
+        // Delete the movement record
+        movementRepo.delete(move);
     }
 }

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - StockMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Text:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/material.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-secondary) 100%);
+        }
+
+        .signup-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 32px;
+        }
+
+        .app-title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .app-title h1 {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-size: 24px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            display: inline-block;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .md-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .md-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="md-card signup-card">
+        <div class="app-title">
+            <h1>Stock Master</h1>
+        </div>
+        <h2 style="text-align: center; margin-bottom: 24px;">Create Account</h2>
+        <form id="signupForm">
+            <div class="md-text-field">
+                <input type="text" id="username" name="username" placeholder=" " required minlength="3">
+                <label for="username">Username</label>
+            </div>
+
+            <div class="md-text-field">
+                <input type="email" id="email" name="email" placeholder=" " required>
+                <label for="email">Email</label>
+            </div>
+
+            <div class="md-grid-2">
+                <div class="md-text-field">
+                    <input type="text" id="firstName" name="firstName" placeholder=" " required>
+                    <label for="firstName">First Name</label>
+                </div>
+
+                <div class="md-text-field">
+                    <input type="text" id="lastName" name="lastName" placeholder=" " required>
+                    <label for="lastName">Last Name</label>
+                </div>
+            </div>
+
+            <div class="md-text-field">
+                <input type="password" id="password" name="password" placeholder=" " required minlength="6">
+                <label for="password">Password</label>
+            </div>
+
+            <div class="md-text-field">
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " required>
+                <label for="confirmPassword">Confirm Password</label>
+            </div>
+
+            <div class="md-text-field">
+                <select id="role" name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="INVENTORY_MANAGER">Inventory Manager</option>
+                    <option value="WAREHOUSE_STAFF">Warehouse Staff</option>
+                    <option value="ADMIN">Administrator</option>
+                </select>
+                <label for="role">Role</label>
+            </div>
+
+            <button type="submit" class="md-button md-button-filled full-width mb-16">
+                <span class="material-icons">person_add</span>
+                Sign Up
+            </button>
+
+            <div class="text-center">
+                <a href="/index.html" class="md-button md-button-text">Already have an account? Login</a>
+            </div>
+        </form>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match!', 'error');
+                return;
+            }
+
+            const userData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                password: password,
+                role: document.getElementById('role').value
+            };
+
+            try {
+                showLoading();
+                await api.register(userData);
+                showToast('Registration successful! Please login.', 'success');
+                setTimeout(() => window.location.href = '/index.html', 1500);
+            } catch (error) {
+                showToast('Registration failed: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+
+</html>

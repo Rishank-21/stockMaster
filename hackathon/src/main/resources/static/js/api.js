@@ -41,7 +41,13 @@ class ApiClient {
                 throw new Error(error || 'Request failed');
             }
 
-            return await response.json();
+            // Handle empty response for DELETE requests
+            if (response.status === 204 || options.method === 'DELETE') {
+                return { success: true };
+            }
+
+            const text = await response.text();
+            return text ? JSON.parse(text) : { success: true };
         } catch (error) {
             console.error('API Error:', error);
             throw error;
@@ -99,6 +105,19 @@ class ApiClient {
         });
     }
 
+    async updateProduct(id, product) {
+        return this.request(`/products/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(product)
+        });
+    }
+
+    async deleteProduct(id) {
+        return this.request(`/products/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
     // Warehouses
     async getWarehouses() {
         return this.request('/warehouses');
@@ -111,6 +130,19 @@ class ApiClient {
         });
     }
 
+    async updateWarehouse(id, warehouse) {
+        return this.request(`/warehouses/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(warehouse)
+        });
+    }
+
+    async deleteWarehouse(id) {
+        return this.request(`/warehouses/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
     // Suppliers
     async getSuppliers() {
         return this.request('/suppliers');
@@ -120,6 +152,19 @@ class ApiClient {
         return this.request('/suppliers', {
             method: 'POST',
             body: JSON.stringify(supplier)
+        });
+    }
+
+    async updateSupplier(id, supplier) {
+        return this.request(`/suppliers/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(supplier)
+        });
+    }
+
+    async deleteSupplier(id) {
+        return this.request(`/suppliers/${id}`, {
+            method: 'DELETE'
         });
     }
 
@@ -170,8 +215,47 @@ class ApiClient {
         });
     }
 
+    async updateMovementStatus(id, status) {
+        return this.request(`/stock/movement/${id}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status })
+        });
+    }
+
+    async deleteMovement(id) {
+        return this.request(`/stock/movement/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
     async getInventory() {
         return this.request('/stock/inventory');
+    }
+
+    async getStockByLocation(productId, warehouseId) {
+        const params = new URLSearchParams();
+        if (productId) params.append('productId', productId);
+        if (warehouseId) params.append('warehouseId', warehouseId);
+        return this.request(`/stock/inventory?${params.toString()}`);
+    }
+
+    // User Profile
+    async getUserProfile() {
+        return this.request('/users/profile');
+    }
+
+    async updateProfile(data) {
+        return this.request('/users/profile', {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async changePassword(data) {
+        return this.request('/users/change-password', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
     }
 }
 

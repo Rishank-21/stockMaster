@@ -67,6 +67,10 @@
             <div class="text-center">
                 <a href="#" id="forgotPasswordLink" class="md-button md-button-text">Forgot Password?</a>
             </div>
+
+            <div class="text-center">
+                <a href="/signup.html" class="md-button md-button-text">Don't have an account? Sign Up</a>
+            </div>
         </form>
     </div>
 
@@ -154,7 +158,7 @@
                 showToast('OTP sent to your email!', 'success');
                 document.getElementById('emailStep').style.display = 'none';
                 document.getElementById('otpStep').style.display = 'block';
-                document.getElementById('sendOtpBtn').style.display = 'none';
+                document.getElementById('send OtpBtn').style.display = 'none';
                 document.getElementById('resetBtn').style.display = 'inline-flex';
             } catch (error) {
                 showToast('Failed to send OTP: ' + error.message, 'error');
