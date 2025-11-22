@@ -33,12 +33,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
-                System.out.println("JWT Extracted Username: " + username);
             } catch (Exception e) {
                 System.out.println("JWT Token extraction failed: " + e.getMessage());
             }
-        } else {
-            System.out.println("No Bearer Token found in Authorization header");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -47,9 +44,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println("Authentication set for user: " + username);
-            } else {
-                System.out.println("Token validation failed for user: " + username);
             }
         }
         chain.doFilter(request, response);

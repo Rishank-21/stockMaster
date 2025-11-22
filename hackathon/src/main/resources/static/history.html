@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move History - StockMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Text:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/material.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+    <nav class="md-navigation-drawer">
+        <a href="/dashboard.html" class="md-nav-item"><span
+                class="material-icons">dashboard</span><span>Dashboard</span></a>
+        <a href="/products.html" class="md-nav-item"><span
+                class="material-icons">inventory_2</span><span>Products</span></a>
+        <a href="/receipts.html" class="md-nav-item"><span
+                class="material-icons">local_shipping</span><span>Receipts</span></a>
+        <a href="/deliveries.html" class="md-nav-item"><span
+                class="material-icons">send</span><span>Deliveries</span></a>
+        <a href="/transfers.html" class="md-nav-item"><span
+                class="material-icons">swap_horiz</span><span>Transfers</span></a>
+        <a href="/adjustments.html" class="md-nav-item"><span
+                class="material-icons">tune</span><span>Adjustments</span></a>
+        <a href="/history.html" class="md-nav-item active"><span
+                class="material-icons">history</span><span>History</span></a>
+        <a href="/suppliers.html" class="md-nav-item"><span
+                class="material-icons">store</span><span>Suppliers</span></a>
+        <div style="margin-top: auto; padding: 24px;"><button onclick="logout()"
+                class="md-button md-button-outlined full-width"><span
+                    class="material-icons">logout</span>Logout</button></div>
+    </nav>
+
+    <div class="main-content">
+        <div class="md-top-app-bar">
+            <h1 class="md-top-app-bar-title">Move History</h1>
+        </div>
+        <div class="content-container">
+            <!-- Filters -->
+            <div class="md-card mb-24">
+                <h3 class="title-medium mb-16">Filters</h3>
+                <div class="md-grid md-grid-3">
+                    <div class="md-text-field">
+                        <select id="filterType">
+                            <option value="">All Types</option>
+                            <option value="RECEIPT">Receipt</option>
+                            <option value="DELIVERY">Delivery</option>
+                            <option value="TRANSFER">Transfer</option>
+                            <option value="ADJUSTMENT">Adjustment</option>
+                        </select>
+                        <label>Type</label>
+                    </div>
+                    <div class="md-text-field">
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="DONE">Done</option>
+                            <option value="PENDING">Pending</option>
+                        </select>
+                        <label>Status</label>
+                    </div>
+                    <div class="md-text-field">
+                        <input type="text" id="filterCategory" placeholder=" ">
+                        <label>Category</label>
+                    </div>
+                </div>
+                <button class="md-button md-button-filled" onclick="applyFilters()">
+                    <span class="material-icons">filter_list</span>
+                    Apply Filters
+                </button>
+            </div>
+
+            <!-- History Table -->
+            <div class="md-card">
+                <div class="md-table-container">
+                    <table class="md-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Product</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Qty</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="8" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        checkAuth();
+
+        async function loadHistory(filters = {}) {
+            try {
+                showLoading();
+                const movements = await api.getHistory(filters);
+                const tbody = document.getElementById('historyTable');
+
+                if (movements.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center">No movements found</td></tr>';
+                } else {
+                    tbody.innerHTML = movements.map(m => {
+                        const date = new Date(m.timestamp).toLocaleString();
+                        const from = m.fromWarehouse ? m.fromWarehouse.name : '-';
+                        const to = m.toWarehouse ? m.toWarehouse.name : '-';
+                        const statusColor = m.status === 'PENDING' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-success)';
+                        const validateBtn = m.status === 'PENDING' ?
+                            `<button class="md-button md-button-text" onclick="validateMovement(${m.id})">
+                                <span class="material-icons">check</span>Validate
+                            </button>` : '';
+
+                        return `<tr>
+                            <td>${date}</td>
+                            <td><span class="md-chip">${m.type}</span></td>
+                            <td>${m.product.name}</td>
+                            <td>${from}</td>
+                            <td>${to}</td>
+                            <td>${m.quantity}</td>
+                            <td style="color: ${statusColor}; font-weight: 500;">${m.status}</td>
+                            <td>${validateBtn}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (error) {
+                showToast('Failed to load history: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function applyFilters() {
+            const filters = {
+                type: document.getElementById('filterType').value || undefined,
+                status: document.getElementById('filterStatus').value || undefined,
+                category: document.getElementById('filterCategory').value || undefined
+            };
+            loadHistory(filters);
+        }
+
+        async function validateMovement(id) {
+            if (!confirm('Validate this movement? This will update stock levels.')) return;
+
+            try {
+                showLoading();
+                await api.validateMovement(id);
+                showToast('Movement validated!', 'success');
+                loadHistory();
+            } catch (error) {
+                showToast('Failed to validate: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        loadHistory();
+    </script>
+</body>
+
+</html>

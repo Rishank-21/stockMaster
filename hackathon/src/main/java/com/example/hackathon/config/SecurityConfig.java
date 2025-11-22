@@ -31,7 +31,16 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register", "/api/users/login", "/api/users/all", "/api/users/forgot-password", "/api/users/reset-password").permitAll()
+                .requestMatchers(
+                    "/api/users/register", 
+                    "/api/users/login", 
+                    "/api/users/all", 
+                    "/api/users/forgot-password", 
+                    "/api/users/reset-password",
+                    "/*.html",           // Allow all HTML files
+                    "/css/**",           // Allow CSS files
+                    "/js/**"             // Allow JS files
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

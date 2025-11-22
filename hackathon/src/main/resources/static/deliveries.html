@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliveries - StockMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Text:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/material.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+    <nav class="md-navigation-drawer">
+        <a href="/dashboard.html" class="md-nav-item"><span
+                class="material-icons">dashboard</span><span>Dashboard</span></a>
+        <a href="/products.html" class="md-nav-item"><span
+                class="material-icons">inventory_2</span><span>Products</span></a>
+        <a href="/receipts.html" class="md-nav-item"><span
+                class="material-icons">local_shipping</span><span>Receipts</span></a>
+        <a href="/deliveries.html" class="md-nav-item active"><span
+                class="material-icons">send</span><span>Deliveries</span></a>
+        <a href="/transfers.html" class="md-nav-item"><span
+                class="material-icons">swap_horiz</span><span>Transfers</span></a>
+        <a href="/adjustments.html" class="md-nav-item"><span
+                class="material-icons">tune</span><span>Adjustments</span></a>
+        <a href="/history.html" class="md-nav-item"><span class="material-icons">history</span><span>History</span></a>
+        <a href="/suppliers.html" class="md-nav-item"><span
+                class="material-icons">store</span><span>Suppliers</span></a>
+        <div style="margin-top: auto; padding: 24px;"><button onclick="logout()"
+                class="md-button md-button-outlined full-width"><span
+                    class="material-icons">logout</span>Logout</button></div>
+    </nav>
+
+    <div class="main-content">
+        <div class="md-top-app-bar">
+            <h1 class="md-top-app-bar-title">Deliveries (Outgoing Stock)</h1>
+        </div>
+        <div class="content-container">
+            <div class="md-card mb-24">
+                <h2 class="md-card-title mb-24">Create Delivery</h2>
+                <form id="deliveryForm">
+                    <div class="md-grid md-grid-2">
+                        <div class="md-text-field"><select id="productId" required>
+                                <option value="">Select Product</option>
+                            </select><label>Product</label></div>
+                        <div class="md-text-field"><select id="warehouseId" required>
+                                <option value="">Select Warehouse</option>
+                            </select><label>From Warehouse</label></div>
+                        <div class="md-text-field"><input type="number" id="quantity" placeholder=" " min="1"
+                                required><label>Quantity</label></div>
+                        <div class="md-text-field"><select id="status" required>
+                                <option value="DONE">DONE (Immediate)</option>
+                                <option value="PENDING">PENDING (Draft)</option>
+                            </select><label>Status</label></div>
+                    </div>
+                    <button type="submit" class="md-button md-button-filled"><span
+                            class="material-icons">send</span>Create Delivery</button>
+                </form>
+            </div>
+
+            <div class="md-card">
+                <h2 class="md-card-title mb-24">Recent Deliveries (Click to view details)</h2>
+                <div class="md-table-container">
+                    <table class="md-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Warehouse</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deliveriesTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detailDialog" class="md-dialog-overlay">
+        <div class="md-dialog">
+            <h2 class="md-dialog-title">Delivery Details</h2>
+            <div class="md-dialog-content" id="detailContent"></div>
+            <div class="md-dialog-actions"><button class="md-button md-button-filled"
+                    onclick="closeDetail()">Close</button></div>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        checkAuth();
+        let allItems = [];
+
+        function showDetail(id) {
+            const item = allItems.find(r => r.id === id);
+            if (!item) return;
+            const date = new Date(item.timestamp).toLocaleString();
+            const statusColor = item.status === 'PENDING' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-success)';
+            document.getElementById('detailContent').innerHTML = `
+                <div style="display: grid; gap: 16px;">
+                    <div><div class="body-medium" style="color: var(--md-sys-color-on-surface-variant);">Delivery ID</div><div class="title-medium">#${item.id}</div></div>
+                    <div><div class="body-medium" style="color: var(--md-sys-color-on-surface-variant);">Date & Time</div><div class="title-medium">${date}</div></div>
+                    <div><div class="body-medium" style="color: var(--md-sys-color-on-surface-variant);">Product</div><div class="title-medium">${item.product.name} (${item.product.sku})</div></div>
+                    <div><div class="body-medium" style="color: var(--md-sys-color-on-surface-variant);">From Warehouse</div><div class="title-medium">${item.fromWarehouse.name}</div></div>
+                    <div><div class="body-medium" style="color: var(--md-sys-color-on-surface-variant);">Quantity</div><div class="title-medium">${item.quantity} ${item.product.unitOfMeasure}</div></div>
+                    <div><div class="body-medium" style="color: var(--md-sys-color-on-surface-variant);">Status</div><div class="title-medium" style="color: ${statusColor};">${item.status}</div></div>
+                </div>`;
+            document.getElementById('detailDialog').classList.add('show');
+        }
+
+        function closeDetail() { document.getElementById('detailDialog').classList.remove('show'); }
+
+        async function loadItems() {
+            try {
+                const items = await api.getHistory({ type: 'DELIVERY' });
+                allItems = items;
+                const tbody = document.getElementById('deliveriesTable');
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No deliveries yet</td></tr>';
+                } else {
+                    tbody.innerHTML = items.map(r => {
+                        const date = new Date(r.timestamp).toLocaleString();
+                        const statusColor = r.status === 'PENDING' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-success)';
+                        return `<tr onclick="showDetail(${r.id})" style="cursor: pointer;">
+                            <td>${date}</td><td>${r.product.name}</td><td>${r.fromWarehouse.name}</td><td>${r.quantity}</td>
+                            <td style="color: ${statusColor}; font-weight: 500;">${r.status}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (error) { console.error('Failed to load:', error); }
+        }
+
+        async function loadDropdowns() {
+            try {
+                const [products, warehouses] = await Promise.all([api.getProducts(), api.getWarehouses()]);
+                document.getElementById('productId').innerHTML = '<option value="">Select Product</option>' + products.map(p => `<option value="${p.id}">${p.name} (${p.sku})</option>`).join('');
+                document.getElementById('warehouseId').innerHTML = '<option value="">Select Warehouse</option>' + warehouses.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            } catch (error) { showToast('Failed to load data: ' + error.message, 'error'); }
+        }
+
+        document.getElementById('deliveryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                productId: parseInt(document.getElementById('productId').value),
+                fromWarehouseId: parseInt(document.getElementById('warehouseId').value),
+                quantity: parseInt(document.getElementById('quantity').value),
+                type: 'DELIVERY',
+                status: document.getElementById('status').value
+            };
+            try {
+                showLoading();
+                await api.createDelivery(data);
+                showToast('Delivery created successfully!', 'success');
+                document.getElementById('deliveryForm').reset();
+                loadItems();
+            } catch (error) { showToast('Failed to create delivery: ' + error.message, 'error'); } finally { hideLoading(); }
+        });
+
+        loadDropdowns();
+        loadItems();
+    </script>
+</body>
+
+</html>
