@@ -127,8 +127,8 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/stockmaster.git
-cd stockmaster
+git clone <your-repository-url>
+cd hackathon
 ```
 
 ### 2. Create MySQL Database
@@ -587,15 +587,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👥 Authors
+## 👥 Team Members
 
-- **Your Name** - *Initial work* - [Your GitHub Profile](https://github.com/yourusername)
+### Odoo Hackathon Team
+
+- **Rawat Rishank** - *Team Leader* - Project Architecture & Backend Development
+- **Pal Hariom** - *Developer* - Frontend Development & API Integration
+- **Ram Rupesh** - *Developer* - Database Design & Business Logic
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Odoo Hackathon organizers for the opportunity
+- Odoo Hackathon organizers for the opportunity and platform
+- Our team for the collaborative effort and dedication
 - Spring Boot team for the excellent framework
 - Material Design team for design guidelines
 - Open source community for invaluable tools and libraries
@@ -606,8 +611,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support and questions:
 
-- **Email**: your.email@example.com
-- **GitHub Issues**: [Create an issue](https://github.com/yourusername/stockmaster/issues)
+- **Team Leader**: Rawat Rishank
+- **Team Members**: Pal Hariom, Ram Rupesh
 - **Documentation**: See [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
 
 ---
@@ -639,4 +644,4 @@ Future enhancements planned:
 
 ---
 
-**Built with ❤️ for the Odoo Hackathon**
+**Built with ❤️ by Team Rawat Rishank, Pal Hariom, and Ram Rupesh for the Odoo Hackathon**
