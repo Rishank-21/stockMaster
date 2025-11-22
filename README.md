@@ -1,67 +1,87 @@
-StockMaster - Inventory Management System
-Spring Boot Java MySQL License
+# StockMaster - Inventory Management System
 
-Team Leader - Rawat Rishank
-Member1 - Pal Hariom
-Member2 - Ram Rupesh
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-blue.svg)](https://www.mysql.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-🏆 Odoo Hackathon Submission
-StockMaster is a comprehensive inventory management system developed for the Odoo Hackathon. Built with modern technologies and best practices, it provides a complete solution for managing products, warehouses, stock movements, and suppliers with real-time tracking and analytics.
+## 🏆 Odoo Hackathon Submission
 
-📋 Table of Contents
-Features
-Technology Stack
-Architecture
-Prerequisites
-Installation
-Configuration
-Usage
-API Documentation
-Project Structure
-Contributing
-License
-✨ Features
-Core Functionality
-Product Management: Create, edit, delete products with SKU tracking, categories, pricing, and reorder rules
-Warehouse Management: Multi-warehouse support with capacity tracking and location management
-Stock Operations:
-Receipts: Incoming stock from suppliers with status workflow (DRAFT → WAITING → READY → DONE)
-Deliveries: Outgoing stock to customers with pick/pack workflow
-Transfers: Inter-warehouse stock transfers
-Adjustments: Stock level corrections and cycle counts
-Supplier Management: Maintain supplier database with contact information
-Movement History: Complete audit trail of all stock transactions with delete capability
-Real-time Stock Visibility: Live stock quantities across all locations
-Dashboard Analytics: 5 key performance indicators with filtering
-Advanced Features
-Status Workflow: Multi-step approval process for receipts and deliveries
-Stock Validation: Automatic validation of available inventory before operations
-Low Stock Alerts: Visual indicators and tracking of items below minimum levels
-Reorder Management: Configurable reorder points and quantities
-Stock by Location: Detailed view of inventory distribution across warehouses
-User Profiles: Role-based access with secure password management
-Security & Authentication
-JWT Authentication: Secure token-based authentication
-Password Encryption: BCrypt password hashing
-Email Integration: Password reset via OTP (One-Time Password)
-Role-Based Access Control: Multiple user roles (Admin, Inventory Manager, Warehouse Staff)
-🛠 Technology Stack
-Backend
-Framework: Spring Boot 3.x
-ORM: Spring Data JPA / Hibernate 6.6
-Security: Spring Security with JWT
-Database: MySQL 8.x
-Email: Spring Mail (SMTP)
-Build Tool: Maven
-Java Version: 17
-Frontend
-HTML5: Semantic markup
-CSS3: Material Design 3 principles
-JavaScript: ES6+ with Fetch API
-UI Framework: Custom Material Design components
-🏗 Architecture
+**StockMaster** is a comprehensive inventory management system developed for the Odoo Hackathon. Built with modern technologies and best practices, it provides a complete solution for managing products, warehouses, stock movements, and suppliers with real-time tracking and analytics.
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
+- [Architecture](#-architecture)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [API Documentation](#-api-documentation)
+- [Project Structure](#-project-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+### Core Functionality
+- **Product Management**: Create, edit, delete products with SKU tracking, categories, pricing, and reorder rules
+- **Warehouse Management**: Multi-warehouse support with capacity tracking and location management
+- **Stock Operations**:
+  - **Receipts**: Incoming stock from suppliers with status workflow (DRAFT → WAITING → READY → DONE)
+  - **Deliveries**: Outgoing stock to customers with pick/pack workflow
+  - **Transfers**: Inter-warehouse stock transfers
+  - **Adjustments**: Stock level corrections and cycle counts
+- **Supplier Management**: Maintain supplier database with contact information
+- **Movement History**: Complete audit trail of all stock transactions with delete capability
+- **Real-time Stock Visibility**: Live stock quantities across all locations
+- **Dashboard Analytics**: 5 key performance indicators with filtering
+
+### Advanced Features
+- **Status Workflow**: Multi-step approval process for receipts and deliveries
+- **Stock Validation**: Automatic validation of available inventory before operations
+- **Low Stock Alerts**: Visual indicators and tracking of items below minimum levels
+- **Reorder Management**: Configurable reorder points and quantities
+- **Stock by Location**: Detailed view of inventory distribution across warehouses
+- **User Profiles**: Role-based access with secure password management
+
+### Security & Authentication
+- **JWT Authentication**: Secure token-based authentication
+- **Password Encryption**: BCrypt password hashing
+- **Email Integration**: Password reset via OTP (One-Time Password)
+- **Role-Based Access Control**: Multiple user roles (Admin, Inventory Manager, Warehouse Staff)
+
+---
+
+## 🛠 Technology Stack
+
+### Backend
+- **Framework**: Spring Boot 3.x
+- **ORM**: Spring Data JPA / Hibernate 6.6
+- **Security**: Spring Security with JWT
+- **Database**: MySQL 8.x
+- **Email**: Spring Mail (SMTP)
+- **Build Tool**: Maven
+- **Java Version**: 17
+
+### Frontend
+- **HTML5**: Semantic markup
+- **CSS3**: Material Design 3 principles
+- **JavaScript**: ES6+ with Fetch API
+- **UI Framework**: Custom Material Design components
+
+---
+
+## 🏗 Architecture
+
 The application follows a layered architecture pattern:
 
+```
 ┌─────────────────────────────────────┐
 │         Presentation Layer          │
 │    (HTML/CSS/JS - Material UI)      │
@@ -86,26 +106,45 @@ The application follows a layered architecture pattern:
 │          Database Layer             │
 │            (MySQL 8.x)              │
 └─────────────────────────────────────┘
-📦 Prerequisites
+```
+
+---
+
+## 📦 Prerequisites
+
 Before you begin, ensure you have the following installed:
 
-Java Development Kit (JDK) 17 or higher
-Maven 3.6+ for dependency management
-MySQL 8.0+ database server
-Git for version control
-A modern web browser (Chrome, Firefox, Edge, Safari)
-🚀 Installation
-1. Clone the Repository
-git clone https://github.com/yourusername/stockmaster.git
-cd stockmaster
-2. Create MySQL Database
+- **Java Development Kit (JDK) 17** or higher
+- **Maven 3.6+** for dependency management
+- **MySQL 8.0+** database server
+- **Git** for version control
+- A modern web browser (Chrome, Firefox, Edge, Safari)
+
+---
+
+## 🚀 Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repository-url>
+cd hackathon
+```
+
+### 2. Create MySQL Database
+
+```sql
 CREATE DATABASE stockmaster;
 CREATE USER 'stockmaster_user'@'localhost' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON stockmaster.* TO 'stockmaster_user'@'localhost';
 FLUSH PRIVILEGES;
-3. Configure Database Credentials
-Open src/main/resources/application.properties and update the following properties with your MySQL credentials:
+```
 
+### 3. Configure Database Credentials
+
+Open `src/main/resources/application.properties` and update the following properties with your MySQL credentials:
+
+```properties
 # Database Configuration
 spring.datasource.url=jdbc:mysql://localhost:3306/stockmaster
 spring.datasource.username=your_mysql_username
@@ -132,99 +171,152 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 # Server Configuration
 server.port=8080
-4. Build the Project
+```
+
+### 4. Build the Project
+
+```bash
 mvn clean install
-5. Run the Application
+```
+
+### 5. Run the Application
+
+```bash
 mvn spring-boot:run
+```
+
 Or run the JAR file:
 
+```bash
 java -jar target/hackathon-0.0.1-SNAPSHOT.jar
-6. Access the Application
+```
+
+### 6. Access the Application
+
 Open your web browser and navigate to:
 
+```
 http://localhost:8080
-Default Login Credentials:
+```
 
-Create a new user via the signup page
-Or register through the API endpoint /api/users/register
-⚙ Configuration
-Application Profiles
+**Default Login Credentials:**
+- Create a new user via the signup page
+- Or register through the API endpoint `/api/users/register`
+
+---
+
+## ⚙ Configuration
+
+### Application Profiles
+
 The application supports different profiles for various environments:
 
-Default Profile: application.properties
-Docker Profile: application-docker.properties
+- **Default Profile**: `application.properties`
+- **Docker Profile**: `application-docker.properties`
+
 To run with a specific profile:
 
+```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=docker
-Email Configuration for Password Reset
-To enable password reset functionality, configure SMTP settings in application.properties:
+```
 
-Enable "Less secure app access" or create an "App Password" for Gmail
-Update the email credentials in the configuration file
-Restart the application
-JWT Secret Key
-Important: Change the default JWT secret key in production:
+### Email Configuration for Password Reset
 
+To enable password reset functionality, configure SMTP settings in `application.properties`:
+
+1. Enable "Less secure app access" or create an "App Password" for Gmail
+2. Update the email credentials in the configuration file
+3. Restart the application
+
+### JWT Secret Key
+
+**Important**: Change the default JWT secret key in production:
+
+```properties
 jwt.secret=YourSecureRandomSecretKeyWithAtLeast256BitsLength
+```
+
 Generate a secure key using:
 
+```bash
 openssl rand -base64 32
-📖 Usage
-User Registration
-Navigate to the signup page
-Enter username, email, password, first name, last name
-Select your role (Admin, Inventory Manager, Warehouse Staff)
-Click "Sign Up"
-Dashboard Overview
+```
+
+---
+
+## 📖 Usage
+
+### User Registration
+
+1. Navigate to the signup page
+2. Enter username, email, password, first name, last name
+3. Select your role (Admin, Inventory Manager, Warehouse Staff)
+4. Click "Sign Up"
+
+### Dashboard Overview
+
 The dashboard provides:
+- Total Products count
+- Low Stock Items alert
+- Pending Receipts count
+- Pending Deliveries count
+- Transfers Scheduled count
 
-Total Products count
-Low Stock Items alert
-Pending Receipts count
-Pending Deliveries count
-Transfers Scheduled count
 Filters available:
+- Movement Type (Receipt, Delivery, Transfer, Adjustment)
+- Status (Done, Pending, Waiting, Ready, Draft)
+- Warehouse selection
 
-Movement Type (Receipt, Delivery, Transfer, Adjustment)
-Status (Done, Pending, Waiting, Ready, Draft)
-Warehouse selection
-Managing Products
-Add Product: Click the "+" FAB button
-View Stock: Click on any product row to see details and stock by location
-Edit Product: Click the edit icon in the Actions column
-Delete Product: Zero out all stock first, then click delete icon
-Stock Operations
-Receipts (Incoming Stock)
-Select Product and Warehouse
-View current stock automatically
-Enter quantity and select status
-Optionally add supplier information
-Submit to create receipt
-Deliveries (Outgoing Stock)
-Select Product and Warehouse
-System shows available stock
-Enter delivery quantity (cannot exceed available)
-Add customer name and shipping address
-Select status and submit
-Transfers
-Select product, source warehouse, and destination warehouse
-Enter transfer quantity
-Stock is deducted from source and added to destination
-Adjustments
-Select product and warehouse
-Enter new stock level
-System calculates and applies the adjustment
-Updating Status
+### Managing Products
+
+1. **Add Product**: Click the "+" FAB button
+2. **View Stock**: Click on any product row to see details and stock by location
+3. **Edit Product**: Click the edit icon in the Actions column
+4. **Delete Product**: Zero out all stock first, then click delete icon
+
+### Stock Operations
+
+#### Receipts (Incoming Stock)
+1. Select Product and Warehouse
+2. View current stock automatically
+3. Enter quantity and select status
+4. Optionally add supplier information
+5. Submit to create receipt
+
+#### Deliveries (Outgoing Stock)
+1. Select Product and Warehouse
+2. System shows available stock
+3. Enter delivery quantity (cannot exceed available)
+4. Add customer name and shipping address
+5. Select status and submit
+
+#### Transfers
+1. Select product, source warehouse, and destination warehouse
+2. Enter transfer quantity
+3. Stock is deducted from source and added to destination
+
+#### Adjustments
+1. Select product and warehouse
+2. Enter new stock level
+3. System calculates and applies the adjustment
+
+### Updating Status
+
 For receipts and deliveries created with DRAFT/WAITING status:
+1. Click the edit icon in the Actions column
+2. Select new status from dropdown
+3. Progress through workflow: DRAFT → WAITING → READY → DONE
+4. Stock is only updated when status changes to DONE
 
-Click the edit icon in the Actions column
-Select new status from dropdown
-Progress through workflow: DRAFT → WAITING → READY → DONE
-Stock is only updated when status changes to DONE
-📚 API Documentation
-Comprehensive API documentation is available in API_DOCUMENTATION.md.
+---
 
-Authentication Endpoints
+## 📚 API Documentation
+
+Comprehensive API documentation is available in [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
+
+### Authentication Endpoints
+
+```
 POST   /api/users/register         - Create new user account
 POST   /api/users/login            - Authenticate and receive JWT token
 POST   /api/users/forgot-password  - Request password reset OTP
@@ -232,17 +324,29 @@ POST   /api/users/reset-password   - Reset password with OTP token
 GET    /api/users/profile          - Get current user profile
 PUT    /api/users/profile          - Update user profile
 POST   /api/users/change-password  - Change password
-Product Endpoints
+```
+
+### Product Endpoints
+
+```
 GET    /api/products               - Get all products
 POST   /api/products               - Create new product
 PUT    /api/products/{id}          - Update product
 DELETE /api/products/{id}          - Delete product (requires zero stock)
-Warehouse Endpoints
+```
+
+### Warehouse Endpoints
+
+```
 GET    /api/warehouses             - Get all warehouses
 POST   /api/warehouses             - Create new warehouse
 PUT    /api/warehouses/{id}        - Update warehouse
 DELETE /api/warehouses/{id}        - Delete warehouse (requires empty)
-Stock Operations Endpoints
+```
+
+### Stock Operations Endpoints
+
+```
 POST   /api/stock/receipt          - Create receipt
 POST   /api/stock/delivery         - Create delivery
 POST   /api/stock/transfer         - Create transfer
@@ -254,18 +358,32 @@ DELETE /api/stock/movement/{id}    - Delete movement (reverses stock changes)
 POST   /api/stock/validate/{id}    - Validate pending movement
 GET    /api/stock/dashboard/stats  - Get dashboard KPIs
 GET    /api/stock/low-stock        - Get low stock items
-Supplier Endpoints
+```
+
+### Supplier Endpoints
+
+```
 GET    /api/suppliers              - Get all suppliers
 POST   /api/suppliers              - Create new supplier
 GET    /api/suppliers/{id}         - Get supplier by ID
 PUT    /api/suppliers/{id}         - Update supplier
 DELETE /api/suppliers/{id}         - Delete supplier
-Request Headers
+```
+
+### Request Headers
+
 All authenticated endpoints require:
 
+```
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
-📁 Project Structure
+```
+
+---
+
+## 📁 Project Structure
+
+```
 hackathon/
 ├── src/
 │   ├── main/
@@ -338,8 +456,15 @@ hackathon/
 ├── DOCKER_INSTRUCTIONS.md                         # Docker deployment guide
 ├── HELP.md                                        # Additional help resources
 └── README.md                                      # This file
-🐳 Docker Deployment
-Using Docker Compose (Recommended)
+```
+
+---
+
+## 🐳 Docker Deployment
+
+### Using Docker Compose (Recommended)
+
+```bash
 # Build and start all services
 docker-compose up -d
 
@@ -348,7 +473,11 @@ docker-compose logs -f
 
 # Stop services
 docker-compose down
-Manual Docker Build
+```
+
+### Manual Docker Build
+
+```bash
 # Build the application
 mvn clean package -DskipTests
 
@@ -372,86 +501,147 @@ docker run -d \
   -e SPRING_DATASOURCE_USERNAME=root \
   -e SPRING_DATASOURCE_PASSWORD=rootpassword \
   stockmaster:latest
-See DOCKER_INSTRUCTIONS.md for detailed deployment instructions.
+```
 
-🧪 Testing
-Run Unit Tests
+See [DOCKER_INSTRUCTIONS.md](DOCKER_INSTRUCTIONS.md) for detailed deployment instructions.
+
+---
+
+## 🧪 Testing
+
+### Run Unit Tests
+
+```bash
 mvn test
-Run Integration Tests
+```
+
+### Run Integration Tests
+
+```bash
 mvn verify
-Test Coverage
+```
+
+### Test Coverage
+
+```bash
 mvn clean test jacoco:report
-View coverage report at: target/site/jacoco/index.html
+```
 
-🔧 Troubleshooting
-Common Issues
-Issue: Application fails to start with "Access denied for user"
+View coverage report at: `target/site/jacoco/index.html`
 
-Solution: Verify MySQL credentials in application.properties
-Issue: JWT token errors
+---
 
-Solution: Ensure JWT secret key is properly configured and consistent
-Issue: Email not sending
+## 🔧 Troubleshooting
 
-Solution: Check SMTP configuration and Gmail app password
-Issue: Cannot delete product/warehouse
+### Common Issues
 
-Solution: Ensure all stock quantities are zeroed out first
-Issue: Port 8080 already in use
+**Issue**: Application fails to start with "Access denied for user"
+- **Solution**: Verify MySQL credentials in `application.properties`
 
-Solution: Change port in application.properties or stop conflicting service
-Enable Debug Logging
-Add to application.properties:
+**Issue**: JWT token errors
+- **Solution**: Ensure JWT secret key is properly configured and consistent
 
+**Issue**: Email not sending
+- **Solution**: Check SMTP configuration and Gmail app password
+
+**Issue**: Cannot delete product/warehouse
+- **Solution**: Ensure all stock quantities are zeroed out first
+
+**Issue**: Port 8080 already in use
+- **Solution**: Change port in `application.properties` or stop conflicting service
+
+### Enable Debug Logging
+
+Add to `application.properties`:
+
+```properties
 logging.level.com.example.hackathon=DEBUG
 logging.level.org.springframework.security=DEBUG
 logging.level.org.hibernate.SQL=DEBUG
-🤝 Contributing
+```
+
+---
+
+## 🤝 Contributing
+
 Contributions are welcome! Please follow these steps:
 
-Fork the repository
-Create a feature branch (git checkout -b feature/AmazingFeature)
-Commit your changes (git commit -m 'Add some AmazingFeature')
-Push to the branch (git push origin feature/AmazingFeature)
-Open a Pull Request
-Code Style Guidelines
-Follow Java naming conventions
-Add JavaDoc comments for public methods
-Write unit tests for new features
-Ensure all tests pass before submitting PR
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-👥 Authors
-Your Name - Initial work - Your GitHub Profile
-🙏 Acknowledgments
-Odoo Hackathon organizers for the opportunity
-Spring Boot team for the excellent framework
-Material Design team for design guidelines
-Open source community for invaluable tools and libraries
-📞 Support
+### Code Style Guidelines
+
+- Follow Java naming conventions
+- Add JavaDoc comments for public methods
+- Write unit tests for new features
+- Ensure all tests pass before submitting PR
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👥 Team Members
+
+### Odoo Hackathon Team
+
+- **Rawat Rishank** - *Team Leader* - Project Architecture & Backend Development
+- **Pal Hariom** - *Developer* - Frontend Development & API Integration
+- **Ram Rupesh** - *Developer* - Database Design & Business Logic
+
+---
+
+## 🙏 Acknowledgments
+
+- Odoo Hackathon organizers for the opportunity and platform
+- Our team for the collaborative effort and dedication
+- Spring Boot team for the excellent framework
+- Material Design team for design guidelines
+- Open source community for invaluable tools and libraries
+
+---
+
+## 📞 Support
+
 For support and questions:
 
-Email: your.email@example.com
-GitHub Issues: Create an issue
-Documentation: See API_DOCUMENTATION.md
-🗺 Roadmap
+- **Team Leader**: Rawat Rishank
+- **Team Members**: Pal Hariom, Ram Rupesh
+- **Documentation**: See [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+
+---
+
+## 🗺 Roadmap
+
 Future enhancements planned:
 
- Barcode scanning support
- Mobile application (iOS/Android)
- Advanced reporting and analytics
- Multi-currency support
- Integration with popular ERP systems
- Automated reordering system
- Batch operations for bulk updates
- Export functionality (CSV, Excel, PDF)
- REST API versioning
- GraphQL support
-📊 Project Statistics
-Lines of Code: 5,000+
-API Endpoints: 30+
-Database Tables: 7
-Frontend Pages: 11
-Test Coverage: 80%+
-Built with ❤️ for the Odoo Hackathon
+- [ ] Barcode scanning support
+- [ ] Mobile application (iOS/Android)
+- [ ] Advanced reporting and analytics
+- [ ] Multi-currency support
+- [ ] Integration with popular ERP systems
+- [ ] Automated reordering system
+- [ ] Batch operations for bulk updates
+- [ ] Export functionality (CSV, Excel, PDF)
+- [ ] REST API versioning
+- [ ] GraphQL support
+
+---
+
+## 📊 Project Statistics
+
+- **Lines of Code**: 5,000+
+- **API Endpoints**: 30+
+- **Database Tables**: 7
+- **Frontend Pages**: 11
+- **Test Coverage**: 80%+
+
+---
+
+**Built with ❤️ by Team Rawat Rishank, Pal Hariom, and Ram Rupesh for the Odoo Hackathon**
